@@ -5,7 +5,9 @@
   "main": "./src/main.ts",
   "scripts": {
     "build": "webpack",
-    "test": "jest"
+    "test": "jest",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "changelog-0": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"
   },
   "repository": {
     "type": "git",
@@ -26,6 +28,7 @@
     "awesome-typescript-loader": "^5.2.1",
     "babel-jest": "^26.6.3",
     "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "conventional-changelog-cli": "^2.1.1",
     "cz-conventional-changelog": "^3.3.0",
     "jest": "^26.6.3",
     "jest-puppeteer": "^5.0.3",
