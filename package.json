@@ -26,6 +26,7 @@
     "awesome-typescript-loader": "^5.2.1",
     "babel-jest": "^26.6.3",
     "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "cz-conventional-changelog": "^3.3.0",
     "jest": "^26.6.3",
     "jest-puppeteer": "^5.0.3",
     "puppeteer": "^9.0.0",
@@ -44,6 +45,11 @@
     "preset": "jest-puppeteer",
     "globals": {
       "TEST_GLOBAL_STRING": "test-global-string"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
     }
   }
 }
