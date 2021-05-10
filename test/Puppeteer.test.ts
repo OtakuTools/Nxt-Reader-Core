@@ -40,8 +40,22 @@ describe('Indexed-db', () => {
   const TestTableName = 'Nxt-Core-Reader-Test-Table'
 
   beforeAll(async () => {
-    indexedDB = await global.page.evaluateHandle(async (dbName: string, version: number, tableName: string) => {
+    await global.page.goto('https://www.baidu.com/')
+    
+    // 注入文件读写
+    const fs = require('fs')
+    await global.page.exposeFunction('readfile', async (filePath: string, encoding: string) => {
+      return new Promise((resolve, reject) => {
+        fs.readFile(filePath, encoding, (err: Error, text: string | Buffer) => {
+          if (err)
+            reject(err)
+          else
+            resolve(text)
+        })
+      })
+    })
 
+    indexedDB = await global.page.evaluateHandle(async (dbName: string, version: number, tableName: string) => {
       // 注入全局变量
       window.connect = function connect(request: IDBRequest): Promise<any> {
         return new Promise((resolve, reject) => {
@@ -103,5 +117,36 @@ describe('Indexed-db', () => {
 
     expect(result).toEqual(testObj)
   })
-    
+
+  test('read utf8 file', async () => {
+    const file = await global.page.evaluate(async () => {
+      return window.readfile('./test/转生成蜘蛛又怎样！.txt', 'utf8')
+    }) as string
+
+    expect(typeof file).toBe('string')
+    expect(/第一卷 1 开场就是高潮/.test(file)).toBe(true)
+  })
+
+  test('save utf8 file', async () => {
+    const fileRecord = await global.page.evaluate(async (indexedDB: IDBDatabase) => {
+      const file = await window.readfile('./test/转生成蜘蛛又怎样！.txt', 'utf8')
+      const record = { id: 2, file: file }
+
+      // 写表
+      await window.connect(
+        indexedDB.transaction([window.TestTableName], 'readwrite')
+          .objectStore(window.TestTableName)
+          .add(record)
+      )
+
+      // 读表
+      const fileRecord:TestTableObj = await window.connect(
+        indexedDB.transaction([window.TestTableName])
+          .objectStore(window.TestTableName)
+          .get(2)
+      )
+      return Promise.resolve({ file , fileRecord})
+    }, indexedDB)
+    expect(typeof fileRecord.file).toBe('string')
+  })    
 })
